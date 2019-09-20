@@ -7,6 +7,7 @@ import pandas as pd
 import glob, os
 from numpy import genfromtxt
 from tensorflow import keras
+import time
 
 from sklearn import preprocessing
 from sklearn.preprocessing import PolynomialFeatures
@@ -82,19 +83,19 @@ x = tf.placeholder(dtype = tf.float32, shape = [None, 171], name="myInput")
 y = tf.placeholder(dtype = tf.int32, shape = [None, 1])
 
 # Fully connected layer 
-dense = tf.contrib.layers.fully_connected(x, 512, tf.nn.relu)
+dense = tf.contrib.layers.fully_connected(x, 128, tf.nn.relu)
+dropout = tf.layers.dropout(
+    inputs=dense, rate=0.5, training=True)
+
+dense = tf.contrib.layers.fully_connected(dropout, 256, tf.nn.relu)
+dropout = tf.layers.dropout(
+    inputs=dense, rate=0.5, training=True)
+
+dense = tf.contrib.layers.fully_connected(dropout, 256, tf.nn.relu)
 dropout = tf.layers.dropout(
     inputs=dense, rate=0.5, training=True)
 
 dense = tf.contrib.layers.fully_connected(dropout, 512, tf.nn.relu)
-dropout = tf.layers.dropout(
-    inputs=dense, rate=0.5, training=True)
-
-dense = tf.contrib.layers.fully_connected(dropout, 256, tf.nn.relu)
-dropout = tf.layers.dropout(
-    inputs=dense, rate=0.5, training=True)
-
-dense = tf.contrib.layers.fully_connected(dropout, 256, tf.nn.relu)
 dropout = tf.layers.dropout(
     inputs=dense, rate=0.5, training=True)
 
@@ -149,6 +150,8 @@ for i in range(30000):
 
 
 tf.saved_model.simple_save(sess,
-            "./model",
+            "./model" + str(time.time()),
             inputs={"myInput": x},
             outputs={"myOutput": logits})
+
+
