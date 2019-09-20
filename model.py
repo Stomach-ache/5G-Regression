@@ -129,7 +129,7 @@ print (type(train_X), train_X.shape)
   # Add a scalar summary for the snapshot loss.
 tf.summary.scalar('loss', loss)
 
-for i in range(10000):
+for i in range(20000):
         #print('EPOCH', i)
         batch_x, batch_y = batch.getBatch()
         batch_y = batch_y.reshape(-1, 1)
@@ -137,7 +137,7 @@ for i in range(10000):
         #print (batch_x, batch_y)
         _, loss_val = sess.run([train_op, loss], feed_dict={x: batch_x, y: batch_y})
         if i % 100 == 0:
-            validation, y_pred = sess.run([loss], feed_dict={x:test_X, y: test_y})
+            validation, y_pred = sess.run([loss, logits], feed_dict={x:test_X, y: test_y})
             pcrr = cal_pcrr(test_y, y_pred)
             print(f"#{i} iteration, Loss: {loss_val}, Validation: {validation}, pcrr: {pcrr}")
         #print('DONE WITH EPOCH')
