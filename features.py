@@ -67,10 +67,19 @@ def cal_features(data):
     h_ue = height_obj_b
     for index in np.where(h_ue <= 0):
         h_ue[index] = 1
+    # frequency
+    for index in np.where(freq <= 0):
+        freq[index] = 1  # 本为0，log10（1）为0，故设为1
+    # d
+    for index in np.where(d <= 0):
+        d[index] = 1  # 本为0，log10（1）为0，故设为1
     PL = 46.3 + 33.9 * np.log10(freq) - 13.82 * np.log10(h_b) - alpha + (44.9 - 6.55 * np.log10(h_ue)) * np.log10(d) + c_m
 
     # 栅格与信号线相对高度
     delta_h = height_s + altitude_c - altitude_obj - d * np.tan(theta_ed + theta_md)
+    d = np.array(d, dtype="float32")
+    PL = np.array(PL, dtype="float32")
+    delta_h = np.array(delta_h, dtype="float32")
 
     return d, PL, delta_h
 
@@ -82,10 +91,14 @@ def cal_pcrr(y_true, y_pred):
     :param y_pred:
     :return:
     """
+    y_true = np.array(y_true).ravel()
+    y_pred = np.array(y_pred).ravel()
     t = -103
     tp = len(y_true[(y_true < t) & (y_pred < t)])
     fp = len(y_true[(y_true >= t) & (y_pred < t)])
     fn = len(y_true[(y_true < t) & (y_pred >= t)])
+    if tp + fp == 0 or tp + fn == 0:
+        return 0
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     pcrr = 2 * (precision * recall) / (precision + recall)

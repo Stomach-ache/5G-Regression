@@ -28,7 +28,7 @@ print('Found GPU at: {}'.format(device_name))
 
 
 
-with open("data1.csv") as file:
+with open("./data.csv") as file:
     my_data = pd.read_csv(file).to_numpy()
     #my_data = genfromtxt(file, delimiter=',')[1:]
 print (my_data.shape)
@@ -137,8 +137,8 @@ for i in range(10000):
         #print (batch_x, batch_y)
         _, loss_val = sess.run([train_op, loss], feed_dict={x: batch_x, y: batch_y})
         if i % 100 == 0:
-            validation = sess.run([loss], feed_dict={x:test_X, y: test_y})
-            pcrr = cal_pcrr(test_y, validation)
+            validation, y_pred = sess.run([loss], feed_dict={x:test_X, y: test_y})
+            pcrr = cal_pcrr(test_y, y_pred)
             print(f"#{i} iteration, Loss: {loss_val}, Validation: {validation}, pcrr: {pcrr}")
         #print('DONE WITH EPOCH')
 
