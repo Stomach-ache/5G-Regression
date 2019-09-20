@@ -22,9 +22,8 @@ print('Found GPU at: {}'.format(device_name))
 
 
 # path to the training data
-os.chdir("/")
-for file in glob.glob("*.csv"):
-    print(file)
+os.chdir("./train_set")
+
 
     
 
@@ -45,12 +44,15 @@ for file in glob.glob("*.csv"):
         label = label + list(my_data[:, -1])
     
     file_id += 1
-    
+    print(file)
+
 train_X = np.array(inst)
 train_y = np.array(label)
 test_X = np.array(test_X)
 test_y = np.array(test_y)
 
+
+print (train_X.shape)
 
 poly = PolynomialFeatures(2)
 train_X = poly.fit_transform(train_X)
@@ -155,3 +157,4 @@ tf.saved_model.simple_save(sess,
             outputs={"myOutput": logits})
 
 
+#test
