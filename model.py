@@ -150,7 +150,7 @@ for i in range(30000):
 
 
 tf.saved_model.simple_save(sess,
-            "./model" + str(time.time()),
+            "./model_" + str(time.time()),
             inputs={"myInput": x},
             outputs={"myOutput": logits})
 
