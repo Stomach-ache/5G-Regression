@@ -80,14 +80,14 @@ y = tf.placeholder(dtype = tf.int32, shape = [None, 1])
 
 # Fully connected layer
 dense = tf.contrib.layers.fully_connected(x, 128, tf.nn.relu)
-dropout = tf.layers.dropout(
-    inputs=dense, rate=0.5, training=True)
+#dropout = tf.layers.dropout(
+#    inputs=dense, rate=0.5, training=True)
 
-dense = tf.contrib.layers.fully_connected(dropout, 256, tf.nn.relu)
-dropout = tf.layers.dropout(
-    inputs=dense, rate=0.5, training=True)
+dense = tf.contrib.layers.fully_connected(dense, 256, tf.nn.relu)
+#dropout = tf.layers.dropout(
+#    inputs=dense, rate=0.5, training=True)
 
-dense = tf.contrib.layers.fully_connected(dropout, 256, tf.nn.relu)
+dense = tf.contrib.layers.fully_connected(dense, 256, tf.nn.relu)
 dropout = tf.layers.dropout(
     inputs=dense, rate=0.5, training=True)
 
@@ -104,10 +104,10 @@ dropout = tf.layers.dropout(
     inputs=dense, rate=0.5, training=True)
 
 dense = tf.contrib.layers.fully_connected(dropout, 128, tf.nn.relu)
-dropout = tf.layers.dropout(
-    inputs=dense, rate=0.5, training=True)
+#dropout = tf.layers.dropout(
+#    inputs=dense, rate=0.5, training=True)
 
-logits = tf.layers.dense(inputs=dropout, units=1)
+logits = tf.layers.dense(inputs=dense, units=1)
 logits = tf.identity(logits, name="myOutput")
 
 # Define a loss function
