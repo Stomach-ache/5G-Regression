@@ -60,11 +60,12 @@ def cal_features(data):
     for index in np.where(clutter_obj == 20):
         c_m[index] = 3
     # 基站天线有效高度
-    h_b = height_s + altitude_c - altitude_obj
+    h_b = height_s + altitude_c
     for index in np.where(h_b <= 0):
         h_b[index] = 1  # 本为0，log10（1）为0，故设为1
     # 用户天线有效高度
-    h_ue = height_obj_b
+    #h_ue = height_obj_b
+    h_ue = altitude_obj
     for index in np.where(h_ue <= 0):
         h_ue[index] = 1
     # frequency
@@ -97,7 +98,7 @@ def cal_pcrr(y_true, y_pred):
     tp = len(y_true[(y_true < t) & (y_pred < t)])
     fp = len(y_true[(y_true >= t) & (y_pred < t)])
     fn = len(y_true[(y_true < t) & (y_pred >= t)])
-    if tp + fp == 0 or tp + fn == 0:
+    if tp + fp == 0 or tp + fn == 0 or tp == 0:
         return 0
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
