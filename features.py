@@ -74,7 +74,7 @@ def cal_features(data):
     # d
     for index in np.where(d <= 0):
         d[index] = 1  # 本为0，log10（1）为0，故设为1
-    PL = 46.3 + 33.9 * np.log10(freq) - 13.82 * np.log10(h_b) - alpha + (44.9 - 6.55 * np.log10(h_ue)) * np.log10(d) + c_m
+    PL = 46.3 + 33.9 * np.log10(freq) - 13.82 * np.log10(h_b) - alpha + (44.9 - 6.55 * np.log10(h_b)) * np.log10(d) + c_m
 
     # 栅格与信号线相对高度
     delta_h = height_s + altitude_c - altitude_obj - d * np.tan(theta_ed + theta_md)
