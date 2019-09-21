@@ -87,7 +87,7 @@ y = tf.placeholder(dtype = tf.float32, shape = [None, 1])
 
 # Fully connected layer
 dense = tf.contrib.layers.fully_connected(x, 1024, tf.nn.relu)
-dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
+#dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
 #dropout = tf.layers.dropout(
 #    inputs=dense, rate=0.5, training=True)
 
