@@ -24,8 +24,11 @@ print('Found GPU at: {}'.format(device_name))
 
 # path to the training data
 #os.chdir("./train_set")
-
-
+def timestamp_to_date(time_stamp, format_string="%Y-%m-%d_%H-%M-%S"):
+    time_array = time.localtime(time_stamp)
+    str_date = time.strftime(format_string, time_array)
+    return str_date
+MODEL_NAME = "20f-test"+ "-" + timestamp_to_date(time.time())
 
 
 with open("./data_new.csv") as file:
@@ -34,7 +37,7 @@ with open("./data_new.csv") as file:
 print (my_data.shape)
 print (type(my_data))
 
-my_data = my_data #[-1000000:]
+my_data = my_data[-100000:]
 
 train_X = np.array(my_data[:-10000, :-1])
 train_y = np.array(my_data[:-10000, -1])
@@ -92,7 +95,7 @@ y = tf.placeholder(dtype = tf.float32, shape = [None, 1])
 dense = tf.contrib.layers.fully_connected(x, 512, tf.nn.relu)
 dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
 dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
-dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
+#dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
 #dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
 
 
@@ -124,32 +127,42 @@ print (type(train_X), train_X.shape)
 tf.summary.scalar('loss', loss)
 
 for i in range(20000):
-        #print('EPOCH', i)
-        batch_x, batch_y = batch.getBatch()
-        batch_y = batch_y.reshape(-1, 1)
-            #print (batch_x.shape, batch_y.shape)
-        #print (batch_x, batch_y)
-        _, loss_val = sess.run([train_op, loss], feed_dict={x: batch_x, y: batch_y})
-        if i % 100 == 0:
-            validation, y_pred = sess.run([loss, logits], feed_dict={x:test_X, y: test_y})
-            with open("test_y", "w") as f:
-                f.write(" ".join([str(item) for item in test_y.ravel()]))
-            with open("y_pred", "w") as f:
-                f.write(" ".join([str(item) for item in y_pred.ravel()]))
-            print(test_y)
-            print(y_pred)
-            # test_y = test_y[::-1]
-            pcrr = cal_pcrr(test_y, y_pred)
-            print(f"#{i} iteration, Loss: {loss_val}, Validation: {validation}, pcrr: {pcrr}")
-        #print('DONE WITH EPOCH')
+    #print('EPOCH', i)
+    batch_x, batch_y = batch.getBatch()
+    batch_y = batch_y.reshape(-1, 1)
+        #print (batch_x.shape, batch_y.shape)
+    #print (batch_x, batch_y)
+    _, loss_val = sess.run([train_op, loss], feed_dict={x: batch_x, y: batch_y})
+    if i % 100 == 0:
+        validation, y_pred = sess.run([loss, logits], feed_dict={x:test_X, y: test_y})
 
-#_logits = sess.run([logits], feed_dict={x: test_X})
-#mse = tf.losses.mean_squared_error(labels = test_y, predictions = logits)
 
+        true_y = test_y.ravel()
+        pred_y = y_pred.ravel()
+        pred_true_num = [float(pred_y[i]) - float(true_y[i]) for i, item in enumerate(true_y)]
+        pred_true_sum = sum([float(pred_y[i]) - float(true_y[i]) for i, item in enumerate(true_y)])
+        pred_true_str = " ".join([str(item) for item in pred_true_num])
+        print('============================')
+        print(true_y)
+        print(pred_y)
+        print(pred_true_str)
+        print(pred_true_sum)
+        pcrr = cal_pcrr(test_y, y_pred)
+        print(f"#{i} iteration, Loss: {loss_val*100}, Validation: {validation}, pcrr: {pcrr}")
+        print('============================')
+
+os.mkdir(MODEL_NAME)
+with open(os.path.join(MODEL_NAME, "true_y"), "w") as f:
+    f.write(" ".join([str(item) for item in true_y]))
+with open(os.path.join(MODEL_NAME, "pred_y"), "w") as f:
+    f.write(" ".join([str(item) for item in pred_y]))
+with open(os.path.join(MODEL_NAME, "pred-true"), "w") as f:
+    f.write(pred_true_str + "\n" + str(pred_true_sum))
+    #print('DONE WITH EPOCH')
 
 
 tf.saved_model.simple_save(sess,
-            "./model_" + str(time.time()),
+            "./model_" + MODEL_NAME,
             inputs={"myInput": x},
             outputs={"myOutput": logits})
 
