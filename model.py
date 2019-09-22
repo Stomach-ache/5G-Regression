@@ -58,8 +58,8 @@ for f in cal_features(test_X):
 
 print (train_X.shape)
 
-#train_X = train_X[:, [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19]]
-#test_X = test_X[:, [1, 2, 4, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19]]
+train_X = train_X[:, [8, 10, 11, 15, 16, 17, 18, 19, 20, 21]]
+test_X = test_X[:, [8, 10, 11, 15, 16, 17, 18, 19, 20, 21]]
 
 #poly = PolynomialFeatures(2)
 # train_X = poly.fit_transform(train_X)
@@ -88,7 +88,7 @@ batch = Batch(train_X, train_y, batch_size)
 
 
 # Initialize placeholders
-x = tf.placeholder(dtype = tf.float32, shape = [None, 20], name="myInput")
+x = tf.placeholder(dtype = tf.float32, shape = [None, 10], name="myInput")
 y = tf.placeholder(dtype = tf.float32, shape = [None, 1])
 
 # Fully connected layer

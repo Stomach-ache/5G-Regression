@@ -7,6 +7,54 @@ import os
 from numpy import genfromtxt
 import pandas as pd
 
+def cal_pl(freq, h_b, d, c_m, h_ue):
+    alpha = np.zeros(len(c_m))
+    for index in np.where(c_m == 3):
+        freq = 3.2 * np.square(np.log10(11.75 * h_ue)) - 4.97
+
+    for index in np.where(c_m == 0):
+        alpha[index] = (1.1 * np.log10(freq) - 0.7) * h_ue - (1.56 * np.log10(freq) - 0.8)
+
+    PL = 46.3 + 33.9 * np.log10(freq) - 13.82 * np.log10(h_b) - alpha + (44.9 - 6.55 * np.log10(h_b)) * np.log10(d) + c_m
+    return PL
+
+def cal_dol(delta_h, theta_md, theta_ed):
+    return np.abs(delta_h) * np.cos(theta_md + theta_ed)
+
+def cal_delta_h(d, height_s, altitude_c, theta_ed, theta_md):
+    h_v = (height_s + altitude_c) - d * np.tan((theta_ed + theta_md) / 180.0 * np.pi)
+    return h_v
+
+def cal_angle(x1, y1, x2, y2):
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    if x2 == x1 and y2 == y1:
+       angle = 0.0
+    elif x2 == x1 and y2 < y1:
+       angle = math.pi
+    elif x2 == x1 and y2 > y1:
+       angle = 0.0
+    elif x2 > x1 and y2 == y1:
+       angle = math.pi / 2
+    elif x2 < x1 and y2 == y1:
+       angle = 3.0 * math.pi / 2.0
+    elif x2 > x1 and y2 > y1:
+       angle = math.pi / 2 - math.atan(dy / dx)
+    elif x2 > x1 and y2 < y1:
+       angle = math.pi / 2 + math.atan(dy / dx)
+    elif x2 < x1 and y2 < y1:
+       angle = math.pi + (math.pi / 2 - math.atan(dy / dx))
+    elif x2 < x1 and y2 > y1:
+       angle = 3.0 * math.pi / 2.0 + math.atan(dy / dx)
+    return angle * 180.0 / math.pi
+
+def cal_delta_theta(x_c, y_c, x_o, y_o):
+    angle = np.zeros(len(x_c))
+
+    for index in range(len(x_c)):
+        angle[index] = cal_angle(x_c[index], y_c[index], x_o[index], y_o[index])
+
+    return angle
 
 def cal_features(data):
     """
@@ -65,7 +113,7 @@ def cal_features(data):
         h_b[index] = 1  # 本为0，log10（1）为0，故设为1
     # 用户天线有效高度
     #h_ue = height_obj_b
-    h_ue = altitude_obj
+    h_ue = altitude_obj + 1.5
     for index in np.where(h_ue <= 0):
         h_ue[index] = 1
     # frequency
@@ -74,15 +122,18 @@ def cal_features(data):
     # d
     for index in np.where(d <= 0):
         d[index] = 1  # 本为0，log10（1）为0，故设为1
-    PL = 46.3 + 33.9 * np.log10(freq) - 13.82 * np.log10(h_b) - alpha + (44.9 - 6.55 * np.log10(h_b)) * np.log10(d) + c_m
-
+    PL = cal_pl(freq, h_b, d, c_m, h_ue)
     # 栅格与信号线相对高度
-    delta_h = height_s + altitude_c - altitude_obj - d * np.tan(theta_ed + theta_md)
+    delta_h = cal_delta_h(d, height_s, altitude_c, theta_ed, theta_md)
+    delta_theta = cal_delta_theta(cell_x, cell_y, obj_x, obj_y)
+    dol = cal_dol(delta_h, theta_md, theta_ed)
     d = np.array(d, dtype="float32")
     PL = np.array(PL, dtype="float32")
     delta_h = np.array(delta_h, dtype="float32")
+    delta_theta = np.array(delta_theta, dtype="float32")
+    dol = np.array(delta_theta, dtype="float32")
 
-    return d, PL, delta_h
+    return d, PL, delta_h, delta_theta, dol
 
 
 def cal_pcrr(y_true, y_pred):
