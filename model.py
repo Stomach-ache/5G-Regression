@@ -37,7 +37,13 @@ with open("./data_new.csv") as file:
 print (my_data.shape)
 print (type(my_data))
 
-my_data = my_data[-100000:]
+data_RANGE = range(my_data.shape[0])
+print(data_RANGE)
+indices = np.random.choice(data_RANGE, 2000000)
+print(indices)
+print(indices.shape)
+my_data = my_data[indices]
+#my_data = my_data[-1000000:]
 
 train_X = np.array(my_data[:-10000, :-1])
 train_y = np.array(my_data[:-10000, -1])
@@ -83,7 +89,7 @@ class Batch(object):
     return self.X[indices], self.y[indices]
 
 
-batch_size = 2046 * 4
+batch_size = 2046
 batch = Batch(train_X, train_y, batch_size)
 
 
@@ -92,10 +98,11 @@ x = tf.placeholder(dtype = tf.float32, shape = [None, 10], name="myInput")
 y = tf.placeholder(dtype = tf.float32, shape = [None, 1])
 
 # Fully connected layer
-dense = tf.contrib.layers.fully_connected(x, 512, tf.nn.relu)
+dense = tf.contrib.layers.fully_connected(x, 256, tf.nn.relu)
+#dense = tf.contrib.layers.fully_connected(dense, 256, tf.nn.relu)
+dense = tf.contrib.layers.fully_connected(dense, 128, tf.nn.relu)
+#dense = tf.contrib.layers.fully_connected(dense, 128, tf.nn.relu)
 dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
-dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
-#dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
 #dense = tf.contrib.layers.fully_connected(dense, 512, tf.nn.relu)
 
 
@@ -141,12 +148,14 @@ for i in range(20000):
         pred_y = y_pred.ravel()
         pred_true_num = [float(pred_y[i]) - float(true_y[i]) for i, item in enumerate(true_y)]
         pred_true_sum = sum([float(pred_y[i]) - float(true_y[i]) for i, item in enumerate(true_y)])
+        pred_true_sum_abs = sum([abs(float(pred_y[i]) - float(true_y[i])) for i, item in enumerate(true_y)])
         pred_true_str = " ".join([str(item) for item in pred_true_num])
         print('============================')
         print(true_y)
         print(pred_y)
         print(pred_true_str)
         print(pred_true_sum)
+        print(pred_true_sum_abs)
         pcrr = cal_pcrr(test_y, y_pred)
         print(f"#{i} iteration, Loss: {loss_val*100}, Validation: {validation}, pcrr: {pcrr}")
         print('============================')
