@@ -28,7 +28,7 @@ def timestamp_to_date(time_stamp, format_string="%Y-%m-%d_%H-%M-%S"):
     time_array = time.localtime(time_stamp)
     str_date = time.strftime(format_string, time_array)
     return str_date
-MODEL_NAME = "20f-test"+ "-" + timestamp_to_date(time.time())
+MODEL_NAME = "20f-final"+ "-" + timestamp_to_date(time.time())
 
 
 with open("./data_new.csv") as file:
